@@ -55,10 +55,30 @@ export default function Episode({episode}: EpisodeProps){
     )
 }
 
+//Obrigatório ser usado em toda rota estatica que tem []
 export const getStaticPaths: GetStaticPaths = async () => {
+    const { data } = await api.get('episodes', {
+        params: {
+          _limit: 2,
+          _sort: 'published_at',
+          _order: 'desc'
+        }
+      })
+
+      const paths = data.map(episode => {
+          return{
+              params: {
+                  slug: episode.id
+              }
+          }
+      })
     return{
-        paths: [],
-        fallback: 'blocking'
+        paths,
+        fallback: 'blocking'//Determina o comportamento de uma página que não foi gerada de forma estática.
+        //Se passado como false ele retorna um 404 caso a página não esteja nos paths.
+        //Se passado como true se uma página for acessada e não foi gerada de forma estática.
+        //ele vai buscar a página pra criar uma página estática em disco, isso acontece pelo lado do client.
+        //Incremental Static Regeneration
     }
 }
 
